@@ -1,13 +1,13 @@
 # Kevin Bacon Graph Load (PostgreSQL + Apache AGE)
 
-This project loads the CSV data for the Six Degrees of Kevin Bacon dataset into PostgreSQL, then builds an Apache AGE graph to run relationship queries.
+This project loads the CSV data for the Six Degrees of Kevin Bacon dataset into PostgreSQL, then builds an Apache AGE graph to run relationship queries. The CSV data has to be downloaded from https://www.kaggle.com/datasets/parthparmar06/imdb-co-star-network?resource=download&select=stars.csv
+There are three csv files in all.
 
 ## Files
 
 - `people.csv` (`id,name,birth`)
 - `movies.csv` (`id,title,year`)
 - `stars.csv` (`person_id,movie_id`)
-- `graph.yml` (DB connection + graph name)
 - `load_bacon.sql` (full import + graph build)
 - `sample_queries.sql` (example relationship queries)
 
@@ -19,18 +19,8 @@ sed -n '1,8p' movies.csv
 sed -n '1,8p' stars.csv
 ```
 
-## 2) Connection values
-
-From `graph.yml`:
-
-- host: `localhost`
-- port: `5455`
-- database: `postgresDB`
-- user: `postgresUser`
-- password: `postgresPW`
-- graph: `bacon`
-
-Quick connectivity check:
+## 2) Quick connectivity check:
+please replace the postgresPQ and postgresDb with your actual username and password.
 
 ```bash
 psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -c "select current_database(), current_user;"
