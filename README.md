@@ -1,7 +1,7 @@
 # Kevin Bacon Graph Load (PostgreSQL + Apache AGE)
 
-This project loads the CSV data for the Six Degrees of Kevin Bacon dataset into PostgreSQL, then builds an Apache AGE graph to run relationship queries. The CSV data has to be downloaded from https://www.kaggle.com/datasets/parthparmar06/imdb-co-star-network?resource=download&select=stars.csv
-There are three csv files in all.
+This project loads the CSV data for the Six Degrees of Kevin Bacon dataset into PostgreSQL, then builds an Apache AGE graph to run relationship queries. The CSV data can be downloaded from:
+https://www.kaggle.com/datasets/parthparmar06/imdb-co-star-network?resource=download&select=stars.csv
 
 ## Files
 
@@ -9,7 +9,9 @@ There are three csv files in all.
 - `movies.csv` (`id,title,year`)
 - `stars.csv` (`person_id,movie_id`)
 - `load_bacon.sql` (full import + graph build)
-- `sample_queries.sql` (example relationship queries)
+- `sample_cypher_graph_queries.sql` (Cypher paths for graph visualizers)
+- `sample_tabular_queries.sql` (human-readable tabular query outputs)
+- `sample_queries.sql` (compatibility wrapper that runs both files)
 
 ## 1) Inspect CSV structure
 
@@ -19,16 +21,15 @@ sed -n '1,8p' movies.csv
 sed -n '1,8p' stars.csv
 ```
 
-## 2) Quick connectivity check:
-please replace the postgresPQ and postgresDb with your actual username and password.
+## 2) Quick connectivity check
+
+Replace credentials with your own values.
 
 ```bash
 psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -c "select current_database(), current_user;"
 ```
 
 ## 3) Load relational tables and build AGE graph
-
-Run:
 
 ```bash
 psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -f load_bacon.sql
@@ -73,20 +74,27 @@ Current loaded counts:
 - `movie_vertices`: `344,276`
 - `acted_in_edges`: `1,188,695`
 
-## 5) Run sample relationship queries
+## 5) Run sample queries
+
+Graph visualizer queries (return full paths with vertices + edges):
+
+```bash
+psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -f sample_cypher_graph_queries.sql
+```
+
+Tabular queries (movies, co-stars, degree checks):
+
+```bash
+psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -f sample_tabular_queries.sql
+```
+
+Run both via wrapper:
 
 ```bash
 psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -f sample_queries.sql
 ```
 
-Included examples:
-
-- Movies Kevin Bacon acted in (`id=102`, born 1958)
-- Co-stars of Clint Eastwood
-- Degree of separation checks between Robert Redford and Kevin Bacon
-- One concrete bridge path example
-
-Observed result for separation:
+Observed separation result (Robert Redford -> Kevin Bacon):
 
 - Degree 1: `false`
 - Degree 2 or less: `true`
