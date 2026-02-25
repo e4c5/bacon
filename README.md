@@ -9,9 +9,21 @@ https://www.kaggle.com/datasets/parthparmar06/imdb-co-star-network?resource=down
 - `movies.csv` (`id,title,year`)
 - `stars.csv` (`person_id,movie_id`)
 - `load_bacon.sql` (full import + graph build)
-- `sample_cypher_graph_queries.sql` (Cypher paths for graph visualizers)
-- `sample_tabular_queries.sql` (human-readable tabular query outputs)
-- `sample_queries.sql` (compatibility wrapper that runs both files)
+
+### Query Sets (explicit split)
+
+Pure Cypher:
+- `cypher_tabular_queries.cypher`
+- `cypher_visualization_queries.cypher`
+
+Equivalent SQL wrappers (same Cyphers wrapped with AGE `cypher(...)`):
+- `sql_tabular_queries.sql`
+- `sql_visualization_queries.sql`
+
+Compatibility wrappers:
+- `sample_cypher_graph_queries.sql`
+- `sample_tabular_queries.sql`
+- `sample_queries.sql`
 
 ## 1) Inspect CSV structure
 
@@ -34,21 +46,6 @@ psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -c "select
 ```bash
 psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -f load_bacon.sql
 ```
-
-What `load_bacon.sql` does:
-
-1. Creates/truncates staging tables:
-   - `public.bacon_people`
-   - `public.bacon_movies`
-   - `public.bacon_stars`
-2. Loads CSV files using `\copy`.
-3. Creates indexes on `bacon_stars(person_id)` and `bacon_stars(movie_id)`.
-4. Creates AGE graph `bacon` if missing.
-5. Creates labels if missing:
-   - Vertex labels: `Person`, `Movie`
-   - Edge label: `ACTED_IN`
-6. Bulk inserts vertices and edges into AGE label tables.
-7. Aligns AGE label sequences for future inserts.
 
 ## 4) Validation queries
 
@@ -74,28 +71,27 @@ Current loaded counts:
 - `movie_vertices`: `344,276`
 - `acted_in_edges`: `1,188,695`
 
-## 5) Run sample queries
+## 5) Run query files
 
-Graph visualizer queries (return full paths with vertices + edges):
-
-```bash
-psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -f sample_cypher_graph_queries.sql
-```
-
-Tabular queries (movies, co-stars, degree checks):
+Visualization set (SQL wrappers):
 
 ```bash
-psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -f sample_tabular_queries.sql
+psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -f sql_visualization_queries.sql
 ```
 
-Run both via wrapper:
+Tabular set (SQL wrappers):
+
+```bash
+psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -f sql_tabular_queries.sql
+```
+
+Pure Cypher files are intended for AGE visualizers/tools that execute Cypher directly:
+
+- `cypher_visualization_queries.cypher`
+- `cypher_tabular_queries.cypher`
+
+Run both SQL sets via wrapper:
 
 ```bash
 psql "postgresql://postgresUser:postgresPW@127.0.0.1:5455/postgresDB" -f sample_queries.sql
 ```
-
-Observed separation result (Robert Redford -> Kevin Bacon):
-
-- Degree 1: `false`
-- Degree 2 or less: `true`
-- Example bridge actor: `Morgan Freeman`
